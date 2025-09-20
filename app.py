@@ -10,16 +10,19 @@ def fetch_prices():
         response = requests.get(url, timeout=5)
         soup = BeautifulSoup(response.text, 'html.parser')
         text = soup.get_text(" ", strip=True)
-        # Use regex to get today's rates
+        
+        # Use regex to extract today's rates
         match_24k = re.search(r'24K Gold /g\s*₹([\d,]+)', text)
         match_22k = re.search(r'22K Gold /g\s*₹([\d,]+)', text)
         match_18k = re.search(r'18K Gold /g\s*₹([\d,]+)', text)
+        
         if match_24k:
             prices["24K Gold"] = float(match_24k.group(1).replace(",", ""))
         if match_22k:
             prices["22K Gold"] = float(match_22k.group(1).replace(",", ""))
         if match_18k:
             prices["18K Gold"] = float(match_18k.group(1).replace(",", ""))
+        
         if not prices:
             raise ValueError("No prices scraped")
     except Exception as e:
