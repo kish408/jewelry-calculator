@@ -4,16 +4,16 @@ from bs4 import BeautifulSoup
 import re
 
 def fetch_prices():
-    url = "https://www.goodreturns.in/gold-rates/"
+    url = 'https://www.goodreturns.in/gold-rates/'
     prices = {}
     try:
         response = requests.get(url, timeout=5)
-        soup = BeautifulSoup(response.text, "html.parser")
-        text = soup.get_text()
-        # Use regex to extract per gram gold prices
-        match_24k = re.search(r"24K Gold /g\s*₹([\d,]+)", text)
-        match_22k = re.search(r"22K Gold /g\s*₹([\d,]+)", text)
-        match_18k = re.search(r"18K Gold /g\s*₹([\d,]+)", text)
+        soup = BeautifulSoup(response.text, 'html.parser')
+        text = soup.get_text(" ", strip=True)
+        # Use regex to get today's rates
+        match_24k = re.search(r'24K Gold /g\s*₹([\d,]+)', text)
+        match_22k = re.search(r'22K Gold /g\s*₹([\d,]+)', text)
+        match_18k = re.search(r'18K Gold /g\s*₹([\d,]+)', text)
         if match_24k:
             prices["24K Gold"] = float(match_24k.group(1).replace(",", ""))
         if match_22k:
@@ -21,9 +21,9 @@ def fetch_prices():
         if match_18k:
             prices["18K Gold"] = float(match_18k.group(1).replace(",", ""))
         if not prices:
-            raise ValueError("No prices extracted")
+            raise ValueError("No prices scraped")
     except Exception as e:
-        st.warning(f"Using fallback prices ({e})")
+        st.warning(f"Using fallback prices. Error fetching live data: {e}")
         prices = {
             "24K Gold": 11200.0,
             "22K Gold": 10280.0,
@@ -35,13 +35,13 @@ def fetch_prices():
     return prices
 
 def calculate_price(weight, rate, making_percent, gst_percent):
-    base = weight * rate
-    making = (making_percent / 100) * base
-    subtotal = base + making
+    base_price = weight * rate
+    making = (making_percent / 100) * base_price
+    subtotal = base_price + making
     gst = (gst_percent / 100) * subtotal
     total = subtotal + gst
     return {
-        "Base Price": round(base, 2),
+        "Base Price": round(base_price, 2),
         "Making Charges": round(making, 2),
         "GST": round(gst, 2),
         "Total": round(total, 2),
@@ -63,7 +63,6 @@ with st.form("calc_form"):
     making = st.number_input("Making Charges (%)", min_value=0.0, step=0.1, value=0.0)
     gst = st.number_input("GST (%)", min_value=0.0, step=0.1, value=0.0)
     submitted = st.form_submit_button("Calculate")
-
 if submitted:
     result = calculate_price(weight, rate, making, gst)
     st.success("✅ Calculation Result")
