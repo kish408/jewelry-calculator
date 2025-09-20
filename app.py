@@ -2,9 +2,6 @@ import streamlit as st
 import requests
 from bs4 import BeautifulSoup
 
-# Update test timestamp
-
-
 # -----------------------------
 # Function to fetch live prices
 # -----------------------------
@@ -15,18 +12,24 @@ def fetch_prices():
         res = requests.get(url, timeout=5)
         soup = BeautifulSoup(res.text, "html.parser")
 
-        # Find all relevant divs containing gold, platinum, silver rates
-        for div in soup.find_all("div", class_="gold_silver_price"):
-            text = div.get_text(" ", strip=True)
-            if "Gold" in text or "Platinum" in text or "Silver" in text:
-                key = text.split("Rate")[0].strip()  # e.g., "22K Gold"
-                value = text.split("Rs.")[-1].replace("/gm", "").replace(",", "").strip()
-                try:
-                    prices[key] = float(value)
-                except:
-                    pass
+        # Find the first table that contains rates
+        table = soup.find("table")
+        if table:
+            for row in table.find_all("tr"):
+                cols = row.find_all("td")
+                if len(cols) >= 2:
+                    key = cols[0].get_text(strip=True)
+                    value_text = cols[1].get_text(strip=True).replace("₹", "").replace("/gm", "").replace(",", "")
+                    try:
+                        prices[key] = float(value_text)
+                    except:
+                        continue
+
+        if not prices:
+            raise ValueError("No prices found from live site")
+
     except Exception as e:
-        st.error(f"Error fetching prices: {e}")
+        st.warning(f"Using fallback prices. Error fetching live data: {e}")
         # fallback defaults
         prices = {
             "24K Gold": 11200.0,
@@ -39,7 +42,7 @@ def fetch_prices():
     return prices
 
 # -----------------------------
-# Calculation logic works
+# Calculation logic
 # -----------------------------
 def calculate_price(weight, rate, making_percent, gst_percent):
     base_price = weight * rate
@@ -62,9 +65,8 @@ st.title("💎 Jewelry Price Calculator")
 
 # Fetch and display prices
 prices = fetch_prices()
-if prices:
-    st.subheader("📊 Today's Prices (per gram)")
-    st.table(prices)
+st.subheader("📊 Today's Prices (per gram)")
+st.table(prices)
 
 # Default rate = 22K Gold
 default_rate = prices.get("22K Gold", 10280.0)
