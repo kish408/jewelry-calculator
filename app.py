@@ -39,7 +39,7 @@ def fetch_prices():
     return prices
 
 # -----------------------------
-# Calculation logic
+# Calculation logic works
 # -----------------------------
 def calculate_price(weight, rate, making_percent, gst_percent):
     base_price = weight * rate
