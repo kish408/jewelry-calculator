@@ -2,6 +2,9 @@ import streamlit as st
 import requests
 from bs4 import BeautifulSoup
 
+# Update test timestamp
+
+
 # -----------------------------
 # Function to fetch live prices
 # -----------------------------
@@ -26,12 +29,12 @@ def fetch_prices():
         st.error(f"Error fetching prices: {e}")
         # fallback defaults
         prices = {
-            "24K Gold": 11200,
-            "22K Gold": 10280,
-            "18K Gold": 8200,
-            "14K Gold": 6500,
-            "Platinum": 3400,
-            "Silver": 75
+            "24K Gold": 11200.0,
+            "22K Gold": 10280.0,
+            "18K Gold": 8200.0,
+            "14K Gold": 6500.0,
+            "Platinum": 3400.0,
+            "Silver": 75.5
         }
     return prices
 
@@ -64,19 +67,18 @@ if prices:
     st.table(prices)
 
 # Default rate = 22K Gold
-default_rate = prices.get("22K Gold", 10280)
+default_rate = prices.get("22K Gold", 10280.0)
 
 # -----------------------------
 # Input Form
 # -----------------------------
 st.subheader("🧮 Calculate Price")
 with st.form("calc_form"):
-    weight = st.number_input("Weight (grams)", min_value=0.01, step=0.01)
-    rate = st.number_input("Rate (per gram)", value=default_rate, step=1.0)
-    making_charges = st.number_input("Making Charges (%)", min_value=0.0, step=0.1)
-    gst = st.number_input("GST (%)", min_value=0.0, step=0.1)
-    
-    # ✅ Submit button
+    weight = st.number_input("Weight (grams)", min_value=0.01, step=0.01, value=0.01)
+    rate = st.number_input("Rate (per gram)", value=float(default_rate), step=1.0)
+    making_charges = st.number_input("Making Charges (%)", min_value=0.0, step=0.1, value=0.0)
+    gst = st.number_input("GST (%)", min_value=0.0, step=0.1, value=0.0)
+
     submitted = st.form_submit_button("Calculate")
 
 # Only calculate if user pressed the button
@@ -84,6 +86,3 @@ if submitted:
     result = calculate_price(weight, rate, making_charges, gst)
     st.success("✅ Calculation Result")
     st.table(result)
-# -----------------------------
-# End Form 20:21
-# -----------------------------

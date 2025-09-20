@@ -20,8 +20,23 @@ if %errorlevel%==0 (
     echo Files to be committed:
     git status --short
 
+    REM ------------------------------
+    REM Generate safe date-time commit message
+    REM ------------------------------
+    for /f "tokens=1-3 delims=/- " %%a in ("%date%") do (
+        set d=%%a
+        set m=%%b
+        set y=%%c
+    )
+    for /f "tokens=1-3 delims=:." %%a in ("%time%") do (
+        set hh=%%a
+        set mm=%%b
+        set ss=%%c
+    )
+    set commitmsg=Update_%y%-%m%-%d%_%hh%-%mm%-%ss%
+    echo Commit message: %commitmsg%
+
     echo Committing changes...
-    for /f "tokens=1-5 delims=/:. " %%d in ("%date% %time%") do set commitmsg=Update_%%d-%%e-%%f_%%g-%%h-%%i
     git commit -m "%commitmsg%"
 
     echo Pushing to GitHub...
