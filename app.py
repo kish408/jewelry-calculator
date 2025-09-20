@@ -31,7 +31,7 @@ def fetch_prices():
             "18K Gold": 8200,
             "14K Gold": 6500,
             "Platinum": 3400,
-            "Silver": 75.5
+            "Silver": 75
         }
     return prices
 
