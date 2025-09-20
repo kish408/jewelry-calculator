@@ -84,3 +84,6 @@ if submitted:
     result = calculate_price(weight, rate, making_charges, gst)
     st.success("✅ Calculation Result")
     st.table(result)
+# -----------------------------
+# End Form 20:21
+# -----------------------------
