@@ -12,6 +12,7 @@ def fetch_prices():
         res = requests.get(url, timeout=5)
         soup = BeautifulSoup(res.text, "html.parser")
 
+        # Find all relevant divs containing gold, platinum, silver rates
         for div in soup.find_all("div", class_="gold_silver_price"):
             text = div.get_text(" ", strip=True)
             if "Gold" in text or "Platinum" in text or "Silver" in text:
@@ -78,10 +79,8 @@ with st.form("calc_form"):
     # ✅ Submit button
     submitted = st.form_submit_button("Calculate")
 
+# Only calculate if user pressed the button
 if submitted:
     result = calculate_price(weight, rate, making_charges, gst)
     st.success("✅ Calculation Result")
     st.table(result)
-# -----------------------------
-# END
-# -----------------------------
